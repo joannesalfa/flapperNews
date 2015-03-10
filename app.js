@@ -63,8 +63,9 @@ app.use(function(err, req, res, next) {
     });
 });
 
-
-var server = app.listen(5000, function() {
+app.set('port', (process.env.PORT || 5000));
+var server = app.listen(app.get('port'), function(e) {
+    if(e) throw e;
   console.log('Express server listening on port ' + server.address().port);
 });
 
