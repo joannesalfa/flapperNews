@@ -63,5 +63,9 @@ app.use(function(err, req, res, next) {
     });
 });
 
+app.listen(process.env.PORT || 3000,function(e){
+    if(e) throw e;
+    console.log('Express server listening on',process.env.PORT);
+});
 
-module.exports = app;
+//module.exports = app;
