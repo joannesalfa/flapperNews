@@ -1,14 +1,30 @@
+//var url = $location.url();
+var angular;
+var location;
+
+
+
+
+
 angular.module('flapperNews', ['ui.router'])
+
+.run(function($location, $rootElement) {
+  $rootElement.off('click');
+})
+
+
 // ui.router config
+
+
 .config([           							
 	'$stateProvider',
 	'$urlRouterProvider',
 	function($stateProvider, $urlRouterProvider) {
-				
+			// This is what causes the problem, because it hijacks urlchange, how did it work if https or http is prepended	
 		$stateProvider
 			.state('home', {
 				url: '/home',
-				templateUrl: '/home.html',
+				templateUrl: 'templates/home.html',
 				controller: 'MainCtrl',
 				resolve: {
 					postPromise: ['posts', function(posts) {
@@ -19,7 +35,7 @@ angular.module('flapperNews', ['ui.router'])
 			
 			.state('posts', {
 				url: '/posts/{id}',
-				templateUrl: '/posts.html',
+				templateUrl: 'templates/posts.html',
 				controller: 'PostsCtrl',
 				resolve: {
 					post: ['$stateParams', 'posts', function($stateParams,posts) {
@@ -37,7 +53,8 @@ angular.module('flapperNews', ['ui.router'])
 '$scope',
 'posts',
 function($scope, posts){
-	
+    
+	$scope.prueba = location.host;
 	$scope.posts = posts.posts;
 	/*
 	$scope.posts = [
@@ -48,11 +65,19 @@ function($scope, posts){
 	  {title: 'post 5', upvotes: 4},
 	];
 	*/
+    //NO MORE DAMN RELATIVE LINKS
 	$scope.addPost = function() {
-		if ($scope.title === '') { return; }
+          if (!/^https?:\/\//i.test($scope.link)) {
+    $scope.link = 'http://' + $scope.link;
+  }   
+        
+        
+		if(!$scope.title || $scope.title === '' || $scope.link === '') { return; }
 		posts.create({
 			title: $scope.title,
-			link: $scope.link,
+            //Temp fix
+//            link: $scope.link.replace(/^[http:\/\/|https:\/\/]+[www.|]+localhost:3000/g,'')
+			link: $scope.link
 		});
 		$scope.title = '';
 		$scope.link = '';
@@ -60,7 +85,7 @@ function($scope, posts){
 	
 	$scope.deletePost = function(post) {
 		posts.delete(post);
-	}
+	};
 	
 	$scope.incrementUpvotes = function(post) {
 		posts.upvote(post);
@@ -127,7 +152,7 @@ function($scope, posts, post) {
 		return $http.delete('/posts/' + post._id).success(function(data) {
 			angular.copy(data, o.posts);
 		});
-	}
+	};
 	// add comment
 	o.addComment = function(id, comment) {
 		return $http.post('/posts/' + id + '/comments', comment);
@@ -140,4 +165,4 @@ function($scope, posts, post) {
 			});
 	};
 	return o;
-}])
+}]);

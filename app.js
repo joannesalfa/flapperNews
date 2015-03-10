@@ -1,3 +1,4 @@
+/*jslint node:true*/
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -7,7 +8,7 @@ var bodyParser = require('body-parser');
 
 // Require mongoose, connect and require mongoose models
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/news');
+mongoose.connect(process.env.DATABASE_URL || 'mongodb://localhost/news');
 require('./models/Posts');
 require('./models/Comments');
 
